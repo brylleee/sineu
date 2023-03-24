@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Updater ni Sir Neil</title>
+
+        <script src="{{ url_for('static', filename='libs/jquery.js') }}"></script>
+        <script src="{{ url_for('static', filename='libs/socket.io.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}" />
+
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    </head>
+    <body>
+        <div id="teams">
+            <h1 id="teamA">{{ teams.teamA }}</h1>
+            <h1 id="teamB">{{ teams.teamB }}</h1>
+        </div>
+
+        <div id="scores">
+            <h1 id="teamAScore">{{ scores.teamA }}</h1>
+            <h1 id="teamBScore">{{ scores.teamB }}</h1>
+        </div>
+
+        <br/>
+
+        <center>
+            <h1 id="quarter">{{ quarter }}</h1>
+        </center>
+
+        <div id="scorer">
+            <span id="teamAupdater">
+                <button class="team1b">1</button>
+                <button class="team1b">2</button>
+                <button class="team1b">3</button>
+            </span>
+
+            <span id="teamBupdater">
+                <button class="team2b">1</button>
+                <button class="team2b">2</button>
+                <button class="team2b">3</button>
+            </span>
+
+            <span id="correctors">
+                <button class="team1b">-</button>
+                <button class="team2b">-</button>
+            </span>
+        </div>
+
+        <script>
+            $(document).ready(function(){
+                // Connect to the socket server.
+                let socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+                let xhr = new XMLHttpRequest();
+
+                let teamAbuttons = document.getElementsByClassName("team1b");
+                for(let button of teamAbuttons) {
+                    button.addEventListener('click', () => {
+                        if(button.textContent == '-') {
+                            xhr.open('GET', 'http://' + document.domain + ':' + location.port + '/correct/teamA');
+                        } else {
+                            xhr.open('GET', 'http://' + document.domain + ':' + location.port + '/add/teamA/' + button.textContent);
+                        }
+
+                        xhr.send();
+                    });
+                }
+
+                let teamBbuttons = document.getElementsByClassName("team2b");
+                for(let button of teamBbuttons) {
+                    button.addEventListener('click', () => {
+                        if(button.textContent == '-') {
+                            xhr.open('GET', 'http://' + document.domain + ':' + location.port + '/correct/teamB');
+                        } else {
+                            xhr.open('GET', 'http://' + document.domain + ':' + location.port + '/add/teamB/' + button.textContent);
+                        }
+
+                        xhr.send();
+                    });
+                }
+
+                socket.on('scoreUpdate', (data) => {
+                    $("#teamAScore").text(data.teamA);
+                    $("#teamBScore").text(data.teamB);
+                });
+
+                socket.on('teamUpdate', (data) => {
+                    $("#teamA").text(data.teamA);
+                    $("#teamB").text(data.teamB);
+                });
+
+                socket.on('stylesUpdate', (data) => {
+                    $(data.element).css(data.property, data.value);
+                });
+
+                socket.on('quarterUpdate', (data) => {
+                    $("#quarter").text(data.quarter);
+                });
+            });
+        </script>
+    </body>
+</html>

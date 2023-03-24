@@ -1,0 +1,51 @@
+body {
+    background-color: #04F404;
+    font-family: titillium-bold;
+    margin: 25px;
+    font-size: larger;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#scores {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+}
+
+#teams {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+}
+
+#scorer {
+    position: fixed;
+    bottom: 0;
+    right: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+#scorer button {
+    width: 55px;
+    height: 55px;
+    opacity: 0.2;
+}
+
+#scorer #correctors button {
+    width: 200px;
+}
+
+@font-face {
+    font-family: titillium-bold;
+    src: url(../assets/Titillium-Bold.otf);
+}
+
+@font-face {
+    font-family: titillium-regular;
+    src: url(../assets/Titillium-Regular.otf);
+}
