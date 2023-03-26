@@ -24,6 +24,8 @@
 
         <center>
             <h1 id="quarter">{{ quarter }}</h1>
+
+            <h1 id="game">{{ game }}</h1>
         </center>
 
         <div id="scorer">
@@ -93,6 +95,10 @@
 
                 socket.on('quarterUpdate', (data) => {
                     $("#quarter").text(data.quarter);
+                });
+
+                socket.on('gameUpdate', (data) => {
+                    $("#game").text(data.game);
                 });
             });
         </script>

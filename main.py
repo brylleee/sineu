@@ -8,25 +8,35 @@ socketio = SocketIO(app)
 teamA = "Team A"
 teamB = "Team B"
 quarter = "1st Quarter"
+game = "Game 1"
 scores = {'teamA': 0, 'teamB': 0}
 teams = {'teamA': teamA, 'teamB': teamB}
+
+def render():
+    return render_template('index.html', scores=scores, teams=teams, quarter=quarter, game=game)
 
 # Route for serving the HTML page with the real-time updates
 @app.route('/')
 def index():
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
 
 @app.route('/init/<teamAName>/<teamBName>')
 def init(teamAName, teamBName):
-    global teamA
-    global teamB
-    teamA = teamAName
-    teamB = teamBName
-    teams = {'teamA': teamA, 'teamB': teamB}
+    global teams
+    teams = {'teamA': teamAName, 'teamB': teamBName}
 
     socketio.emit('teamUpdate', teams, namespace='/')
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
+
+
+@app.route('/gameC/<gametitle>')
+def gameC(gametitle):
+    global game
+    game = gametitle
+    
+    socketio.emit('gameUpdate', {'game': game}, namespace='/')
+    return render()
 
 
 @app.route('/quarterC/<int:q>')
@@ -45,13 +55,13 @@ def quarterC(q):
         quarter = '4th Quarter'
         socketio.emit('quarterUpdate', {'quarter': quarter}, namespace='/')
 
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
 
 @app.route('/styles/<element>/<property>/<value>')
 def styles(element, property, value):
     socketio.emit('stylesUpdate', {'element': '#'+element, 'property': property, 'value': value}, namespace='/')
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
 
 @app.route('/reset')
@@ -62,14 +72,14 @@ def reset():
     socketio.emit('teamUpdate', teams, namespace='/')
     socketio.emit('scoreUpdate', scores, namespace='/')
     socketio.emit('quarterUpdate', {'quarter': quarter}, namespace='/')
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
 
 @app.route('/add/<team>/<int:points>')
 def add(team, points):
     scores[team] += points
     socketio.emit('scoreUpdate', scores, namespace='/')
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
 
 @app.route('/correct/<team>')
@@ -77,22 +87,8 @@ def correct(team):
     if scores[team] > 0:
         scores[team] -= 1
     socketio.emit('scoreUpdate', scores, namespace='/')
-    return render_template('index.html', scores=scores, teams=teams, quarter=quarter)
+    return render()
 
-
-'''
-def generate_data():
-    global data
-    while True:
-        data = random.randint(1, 100)
-        socketio.emit('new_data', {'data': data}, namespace="/")
-        socketio.sleep(1)
-
-# Emit the data over the websocket
-@socketio.on('connect')
-def handle_connect():
-    socketio.start_background_task(target=generate_data)
-'''
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)
